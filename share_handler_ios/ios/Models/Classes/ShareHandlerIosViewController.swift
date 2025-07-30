@@ -26,6 +26,7 @@ open class ShareHandlerIosViewController: UIViewController {
     let fileURLType = UTType.fileURL.identifier
     let dataContentType = UTType.data.identifier
     var sharedAttachments: [SharedAttachment] = []
+    public var shareTarget: String? = nil
     private var fileNameCounter: [String: Int] = [:]
     lazy var userDefaults: UserDefaults = {
         return UserDefaults(suiteName: ShareHandlerIosViewController.appGroupId)!
@@ -46,22 +47,13 @@ open class ShareHandlerIosViewController: UIViewController {
         ShareHandlerIosViewController.appGroupId = (Bundle.main.object(forInfoDictionaryKey: "AppGroupId") as? String) ?? "group.\(ShareHandlerIosViewController.hostAppBundleIdentifier)";
         }
 
-    public override func viewDidLoad() {
-        super.viewDidLoad();
-
-        // load group and app id from build info
-                loadIds();
-        Task {
-            await handleInputItems()
-        }
-    }
 
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
     }
 
-    func handleInputItems() async {
+   public func handleInputItems() async {
         if let content = extensionContext!.inputItems[0] as? NSExtensionItem {
             if let contents = content.attachments {
                 for (index, attachment) in (contents).enumerated() {
@@ -263,7 +255,7 @@ open class ShareHandlerIosViewController: UIViewController {
         let serviceName = intent?.serviceName
         let speakableGroupName = intent?.speakableGroupName
 
-        let sharedMedia = SharedMedia.init(attachments: sharedAttachments, conversationIdentifier: conversationIdentifier, content: sharedText.joined(separator: "\n"), speakableGroupName: speakableGroupName?.spokenPhrase, serviceName: serviceName, senderIdentifier: sender?.contactIdentifier ?? sender?.customIdentifier, imageFilePath: nil)
+        let sharedMedia = SharedMedia.init(attachments: sharedAttachments, conversationIdentifier: conversationIdentifier, content: sharedText.joined(separator: "\n"), speakableGroupName: speakableGroupName?.spokenPhrase, serviceName: serviceName, senderIdentifier: shareTarget, imageFilePath: nil)
 
         let json = sharedMedia.toJson()
 

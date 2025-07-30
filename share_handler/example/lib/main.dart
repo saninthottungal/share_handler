@@ -52,6 +52,7 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: ListView(
             children: <Widget>[
+              Text("share Target: ${media?.senderIdentifier}"),
               Text("Conversation Identifier: ${media?.conversationIdentifier}"),
               const SizedBox(height: 10),
               Text("Shared text: ${media?.content}"),
