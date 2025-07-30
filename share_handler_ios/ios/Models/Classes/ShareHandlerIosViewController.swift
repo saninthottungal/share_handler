@@ -48,10 +48,7 @@ open class ShareHandlerIosViewController: UIViewController {
         }
 
 
-    public override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
-    }
+
 
    public func handleInputItems() async {
         if let content = extensionContext!.inputItems[0] as? NSExtensionItem {
