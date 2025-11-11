@@ -25,12 +25,14 @@ class ShareHandlerAndroidPlatform extends ShareHandlerPlatform {
     required String conversationName,
     String? conversationImageFilePath,
     String? serviceName,
+    String? activityClassPath,
   }) {
     return _api.recordSentMessage(SharedMedia(
       conversationIdentifier: conversationIdentifier,
       speakableGroupName: conversationName,
       serviceName: serviceName,
       imageFilePath: conversationImageFilePath,
+      activityClassPath: activityClassPath,
     ));
   }
 

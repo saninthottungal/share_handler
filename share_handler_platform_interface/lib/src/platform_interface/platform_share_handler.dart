@@ -21,27 +21,38 @@ abstract class ShareHandlerPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  /// Returns the initially stored shared media for single time use on app boot. Use media stream to receive shares while app is active.
-  /// NOTE. (iOS only) file attachments are copied to a temp folder and should be deleted after using them.
+  /// Returns the initially stored shared media for single time use on app boot.
+  /// Use media stream to receive shares while app is active.
+  ///
+  /// NOTE. (iOS only) File attachments are copied to a temp folder and should be deleted after using them.
   Future<SharedMedia?> getInitialSharedMedia() async {
     throw UnimplementedError('getInitialSharedMedia has not been implemented.');
   }
 
   /// Records a sent message so the share menu can suggest recipients/conversations to share to.
+  ///
+  /// [conversationIdentifier] - A unique identifier for the chat or conversation.
+  /// [conversationName] - Display name of the conversation.
+  /// [conversationImageFilePath] - (optional) path to an image to display for the conversation.
+  /// [serviceName] - (optional) name of the messaging service.
+  /// [activityClassPath] - (optional, Android only) the Activity class path where the share should be directed.
   Future<void> recordSentMessage({
     required String conversationIdentifier,
     required String conversationName,
     String? conversationImageFilePath,
     String? serviceName,
+    String? activityClassPath, // ✅ added field
   }) {
     throw UnimplementedError('recordSentMessage has not been implemented.');
   }
 
   /// Resets the initial shared media to null to prevent duplicate handling.
   Future<void> resetInitialSharedMedia() {
-    throw UnimplementedError('resetInitialSharedMedia has not been implemented.');
+    throw UnimplementedError(
+        'resetInitialSharedMedia has not been implemented.');
   }
 
   /// Stream that can be listened to for shared media when the app is already running.
-  Stream<SharedMedia> get sharedMediaStream => throw UnimplementedError('mediaStream has not been implemented.');
+  Stream<SharedMedia> get sharedMediaStream =>
+      throw UnimplementedError('mediaStream has not been implemented.');
 }
