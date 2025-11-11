@@ -82,3 +82,13 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+dependency_overrides:
+
+  share_handler_platform_interface:
+    git:
+      url: https://github.com/saninthottungal/share_handler
+      ref: f388c1c979c5091d312be19f5ca2764fa3a887ac
+      path: share_handler_platform_interface
+
+
+

@@ -91,13 +91,17 @@ class ShareHandlerPlugin : FlutterPlugin, Messages.ShareHandlerApi, EventChannel
   }
 
   override fun recordSentMessage(media: Messages.SharedMedia) {
+    Log.d("ShareHandler", "activityClassPath = ${media.activityClassPath}")
     val packageName = media.activityClassPath ?: return
 
     val intent = Intent(applicationContext, Class.forName("$packageName.MainActivity")).apply {
       action = Intent.ACTION_SEND
       putExtra("conversationIdentifier", media.conversationIdentifier)
     }
-    val shortcutTarget = "$packageName.dynamic_share_target"
+
+
+    val currentPackage = applicationContext.packageName
+    val shortcutTarget = "$currentPackage.dynamic_share_target"
     val shortcutBuilder = ShortcutInfoCompat.Builder(applicationContext, media.conversationIdentifier ?: "")
       .setShortLabel(media.speakableGroupName ?: "Unknown")
       .setIsConversation()
