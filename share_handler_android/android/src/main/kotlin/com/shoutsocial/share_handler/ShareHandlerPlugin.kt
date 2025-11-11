@@ -91,7 +91,8 @@ class ShareHandlerPlugin : FlutterPlugin, Messages.ShareHandlerApi, EventChannel
   }
 
   override fun recordSentMessage(media: Messages.SharedMedia) {
-    val packageName = applicationContext.packageName
+    val packageName = media.activityClassPath ?: return
+
     val intent = Intent(applicationContext, Class.forName("$packageName.MainActivity")).apply {
       action = Intent.ACTION_SEND
       putExtra("conversationIdentifier", media.conversationIdentifier)

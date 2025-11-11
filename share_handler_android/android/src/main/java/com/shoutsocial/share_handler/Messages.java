@@ -12,7 +12,6 @@ import io.flutter.plugin.common.MessageCodec;
 import io.flutter.plugin.common.StandardMessageCodec;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,7 @@ public class Messages {
     audio(2),
     file(3);
 
-    private int index;
+    private final int index;
     private SharedAttachmentType(final int index) {
       this.index = index;
     }
@@ -58,11 +57,11 @@ public class Messages {
     private SharedAttachment() {}
     public static final class Builder {
       private @Nullable String path;
+      private @Nullable SharedAttachmentType type;
       public @NonNull Builder setPath(@NonNull String setterArg) {
         this.path = setterArg;
         return this;
       }
-      private @Nullable SharedAttachmentType type;
       public @NonNull Builder setType(@NonNull SharedAttachmentType setterArg) {
         this.type = setterArg;
         return this;
@@ -74,19 +73,21 @@ public class Messages {
         return pigeonReturn;
       }
     }
+
     @NonNull Map<String, Object> toMap() {
-      Map<String, Object> toMapResult = new HashMap<>();
-      toMapResult.put("path", path);
-      toMapResult.put("type", type == null ? null : type.index);
-      return toMapResult;
+      Map<String, Object> result = new HashMap<>();
+      result.put("path", path);
+      result.put("type", type == null ? null : type.index);
+      return result;
     }
+
     static @NonNull SharedAttachment fromMap(@NonNull Map<String, Object> map) {
-      SharedAttachment pigeonResult = new SharedAttachment();
+      SharedAttachment result = new SharedAttachment();
       Object path = map.get("path");
-      pigeonResult.setPath((String)path);
+      result.setPath((String) path);
       Object type = map.get("type");
-      pigeonResult.setType(type == null ? null : SharedAttachmentType.values()[(int)type]);
-      return pigeonResult;
+      result.setType(type == null ? null : SharedAttachmentType.values()[(int) type]);
+      return result;
     }
   }
 
@@ -134,90 +135,115 @@ public class Messages {
       this.imageFilePath = setterArg;
     }
 
+    // ✅ New field: activityClassPath
+    private @Nullable String activityClassPath;
+    public @Nullable String getActivityClassPath() { return activityClassPath; }
+    public void setActivityClassPath(@Nullable String setterArg) {
+      this.activityClassPath = setterArg;
+    }
+
+    /** Builder for SharedMedia. */
     public static final class Builder {
       private @Nullable List<SharedAttachment> attachments;
+      private @Nullable String conversationIdentifier;
+      private @Nullable String content;
+      private @Nullable String speakableGroupName;
+      private @Nullable String serviceName;
+      private @Nullable String senderIdentifier;
+      private @Nullable String imageFilePath;
+      private @Nullable String activityClassPath;
+
       public @NonNull Builder setAttachments(@Nullable List<SharedAttachment> setterArg) {
         this.attachments = setterArg;
         return this;
       }
-      private @Nullable String conversationIdentifier;
+
       public @NonNull Builder setConversationIdentifier(@Nullable String setterArg) {
         this.conversationIdentifier = setterArg;
         return this;
       }
-      private @Nullable String content;
+
       public @NonNull Builder setContent(@Nullable String setterArg) {
         this.content = setterArg;
         return this;
       }
-      private @Nullable String speakableGroupName;
+
       public @NonNull Builder setSpeakableGroupName(@Nullable String setterArg) {
         this.speakableGroupName = setterArg;
         return this;
       }
-      private @Nullable String serviceName;
+
       public @NonNull Builder setServiceName(@Nullable String setterArg) {
         this.serviceName = setterArg;
         return this;
       }
-      private @Nullable String senderIdentifier;
+
       public @NonNull Builder setSenderIdentifier(@Nullable String setterArg) {
         this.senderIdentifier = setterArg;
         return this;
       }
-      private @Nullable String imageFilePath;
+
       public @NonNull Builder setImageFilePath(@Nullable String setterArg) {
         this.imageFilePath = setterArg;
         return this;
       }
+
+      public @NonNull Builder setActivityClassPath(@Nullable String setterArg) {
+        this.activityClassPath = setterArg;
+        return this;
+      }
+
       public @NonNull SharedMedia build() {
-        SharedMedia pigeonReturn = new SharedMedia();
-        pigeonReturn.setAttachments(attachments);
-        pigeonReturn.setConversationIdentifier(conversationIdentifier);
-        pigeonReturn.setContent(content);
-        pigeonReturn.setSpeakableGroupName(speakableGroupName);
-        pigeonReturn.setServiceName(serviceName);
-        pigeonReturn.setSenderIdentifier(senderIdentifier);
-        pigeonReturn.setImageFilePath(imageFilePath);
-        return pigeonReturn;
+        SharedMedia result = new SharedMedia();
+        result.setAttachments(attachments);
+        result.setConversationIdentifier(conversationIdentifier);
+        result.setContent(content);
+        result.setSpeakableGroupName(speakableGroupName);
+        result.setServiceName(serviceName);
+        result.setSenderIdentifier(senderIdentifier);
+        result.setImageFilePath(imageFilePath);
+        result.setActivityClassPath(activityClassPath);
+        return result;
       }
     }
+
     @NonNull Map<String, Object> toMap() {
-      Map<String, Object> toMapResult = new HashMap<>();
-      List<Map<String, Object>> list = new ArrayList();
-      for (int i = 0; i < (attachments == null ? 0 : attachments.size()); i++) {
-        list.add(attachments.get(i).toMap());
+      Map<String, Object> map = new HashMap<>();
+      List<Map<String, Object>> list = new ArrayList<>();
+      if (attachments != null) {
+        for (SharedAttachment att : attachments) {
+          list.add(att.toMap());
+        }
       }
-      toMapResult.put("attachments", list.isEmpty() ? null : list);
-      toMapResult.put("conversationIdentifier", conversationIdentifier);
-      toMapResult.put("content", content);
-      toMapResult.put("speakableGroupName", speakableGroupName);
-      toMapResult.put("serviceName", serviceName);
-      toMapResult.put("senderIdentifier", senderIdentifier);
-      toMapResult.put("imageFilePath", imageFilePath);
-      return toMapResult;
+      map.put("attachments", list.isEmpty() ? null : list);
+      map.put("conversationIdentifier", conversationIdentifier);
+      map.put("content", content);
+      map.put("speakableGroupName", speakableGroupName);
+      map.put("serviceName", serviceName);
+      map.put("senderIdentifier", senderIdentifier);
+      map.put("imageFilePath", imageFilePath);
+      map.put("activityClassPath", activityClassPath);
+      return map;
     }
+
     static @NonNull SharedMedia fromMap(@NonNull Map<String, Object> map) {
-      SharedMedia pigeonResult = new SharedMedia();
+      SharedMedia result = new SharedMedia();
       List<Map<String, Object>> attachments = (List<Map<String, Object>>) map.get("attachments");
       List<SharedAttachment> list = new ArrayList<>();
-      for (int i = 0; i < (attachments == null ? 0 : attachments.size()); i++) {
-        list.add(SharedAttachment.fromMap(attachments.get(i)));
+      if (attachments != null) {
+        for (Map<String, Object> item : attachments) {
+          list.add(SharedAttachment.fromMap(item));
+        }
       }
-      pigeonResult.setAttachments(list);
-      Object conversationIdentifier = map.get("conversationIdentifier");
-      pigeonResult.setConversationIdentifier((String)conversationIdentifier);
-      Object content = map.get("content");
-      pigeonResult.setContent((String)content);
-      Object speakableGroupName = map.get("speakableGroupName");
-      pigeonResult.setSpeakableGroupName((String)speakableGroupName);
-      Object serviceName = map.get("serviceName");
-      pigeonResult.setServiceName((String)serviceName);
-      Object senderIdentifier = map.get("senderIdentifier");
-      pigeonResult.setSenderIdentifier((String)senderIdentifier);
-      Object imageFilePath = map.get("imageFilePath");
-      pigeonResult.setImageFilePath((String)imageFilePath);
-      return pigeonResult;
+      result.setAttachments(list);
+      result.setConversationIdentifier((String) map.get("conversationIdentifier"));
+      result.setContent((String) map.get("content"));
+      result.setSpeakableGroupName((String) map.get("speakableGroupName"));
+      result.setServiceName((String) map.get("serviceName"));
+      result.setSenderIdentifier((String) map.get("senderIdentifier"));
+      result.setImageFilePath((String) map.get("imageFilePath"));
+      result.setActivityClassPath((String) map.get("activityClassPath"));
+      return result;
     }
   }
 
@@ -225,62 +251,50 @@ public class Messages {
     void success(T result);
     void error(Throwable error);
   }
+
   private static class ShareHandlerApiCodec extends StandardMessageCodec {
     public static final ShareHandlerApiCodec INSTANCE = new ShareHandlerApiCodec();
     private ShareHandlerApiCodec() {}
     @Override
     protected Object readValueOfType(byte type, ByteBuffer buffer) {
       switch (type) {
-        case (byte)128:         
+        case (byte)128:
           return SharedAttachment.fromMap((Map<String, Object>) readValue(buffer));
-        
-        case (byte)129:         
+        case (byte)129:
           return SharedMedia.fromMap((Map<String, Object>) readValue(buffer));
-        
-        case (byte)130:         
-          return SharedMedia.fromMap((Map<String, Object>) readValue(buffer));
-        
-        default:        
+        default:
           return super.readValueOfType(type, buffer);
-        
       }
     }
+
     @Override
-    protected void writeValue(ByteArrayOutputStream stream, Object value)     {
+    protected void writeValue(ByteArrayOutputStream stream, Object value) {
       if (value instanceof SharedAttachment) {
         stream.write(128);
         writeValue(stream, ((SharedAttachment) value).toMap());
-      } else 
-      if (value instanceof SharedMedia) {
+      } else if (value instanceof SharedMedia) {
         stream.write(129);
         writeValue(stream, ((SharedMedia) value).toMap());
-      } else 
-      if (value instanceof SharedMedia) {
-        stream.write(130);
-        writeValue(stream, ((SharedMedia) value).toMap());
-      } else 
-{
+      } else {
         super.writeValue(stream, value);
       }
     }
   }
 
-  /** Generated interface from Pigeon that represents a handler of messages from Flutter.*/
+  /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
   public interface ShareHandlerApi {
     void getInitialSharedMedia(Result<SharedMedia> result);
     void recordSentMessage(@NonNull SharedMedia media);
     void resetInitialSharedMedia();
 
-    /** The codec used by ShareHandlerApi. */
     static MessageCodec<Object> getCodec() {
       return ShareHandlerApiCodec.INSTANCE;
     }
 
-    /** Sets up an instance of `ShareHandlerApi` to handle messages through the `binaryMessenger`. */
     static void setup(BinaryMessenger binaryMessenger, ShareHandlerApi api) {
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.ShareHandlerApi.getInitialSharedMedia", getCodec());
+                new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.ShareHandlerApi.getInitialSharedMedia", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
@@ -295,10 +309,8 @@ public class Messages {
                   reply.reply(wrapped);
                 }
               };
-
               api.getInitialSharedMedia(resultCallback);
-            }
-            catch (Error | RuntimeException exception) {
+            } catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));
               reply.reply(wrapped);
             }
@@ -307,22 +319,22 @@ public class Messages {
           channel.setMessageHandler(null);
         }
       }
+
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.ShareHandlerApi.recordSentMessage", getCodec());
+                new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.ShareHandlerApi.recordSentMessage", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
-              ArrayList<Object> args = (ArrayList<Object>)message;
-              SharedMedia mediaArg = (SharedMedia)args.get(0);
+              ArrayList<Object> args = (ArrayList<Object>) message;
+              SharedMedia mediaArg = (SharedMedia) args.get(0);
               if (mediaArg == null) {
                 throw new NullPointerException("mediaArg unexpectedly null.");
               }
               api.recordSentMessage(mediaArg);
               wrapped.put("result", null);
-            }
-            catch (Error | RuntimeException exception) {
+            } catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));
             }
             reply.reply(wrapped);
@@ -331,17 +343,17 @@ public class Messages {
           channel.setMessageHandler(null);
         }
       }
+
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.ShareHandlerApi.resetInitialSharedMedia", getCodec());
+                new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.ShareHandlerApi.resetInitialSharedMedia", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
               api.resetInitialSharedMedia();
               wrapped.put("result", null);
-            }
-            catch (Error | RuntimeException exception) {
+            } catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));
             }
             reply.reply(wrapped);
@@ -352,6 +364,7 @@ public class Messages {
       }
     }
   }
+
   private static Map<String, Object> wrapError(Throwable exception) {
     Map<String, Object> errorMap = new HashMap<>();
     errorMap.put("message", exception.toString());
