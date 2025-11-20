@@ -41,7 +41,7 @@ abstract class ShareHandlerPlatform extends PlatformInterface {
     required String conversationName,
     String? conversationImageFilePath,
     String? serviceName,
-    String? activityClassPath, // ✅ added field
+    String? activityClassPath,
   }) {
     throw UnimplementedError('recordSentMessage has not been implemented.');
   }
