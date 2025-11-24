@@ -92,8 +92,10 @@ class ShareHandlerPlugin : FlutterPlugin, Messages.ShareHandlerApi, EventChannel
     }
     Log.d("ShareHandler", "Intent created. action = ${intent.action}, extras = ${intent.extras}")
 
-    val shortcutTarget = "$packageName.dynamic_share_target"
-    Log.d("ShareHandler", "Runtime package = $packageName")
+    val currentPackage = applicationContext.packageName
+
+    val shortcutTarget = "$currentPackage.dynamic_share_target"
+    Log.d("ShareHandler", "Runtime package = $currentPackage")
     Log.d("ShareHandler", "shortcutTarget = $shortcutTarget")
 
     val shortcutId = media.conversationIdentifier ?: "conversation_${System.currentTimeMillis()}"
