@@ -52,53 +52,59 @@ class ShareHandlerPlugin : FlutterPlugin, Messages.ShareHandlerApi, EventChannel
     Messages.ShareHandlerApi.setup(binding.binaryMessenger, null)
   }
 
-//  override fun getInitialSharedMedia(result: Result<SharedMedia>?) {
-//    result?.let { _result -> {
-//      initialMedia?.let { _media -> _result.success(_media) }
-//    } }
-//  }
 
-//  override fun recordSentMessage(media: SharedMedia) {
-//    val packageName = applicationContext.packageName
-//    val shortcutTarget = "$packageName.dynamic_share_target"
-//    val shortcutBuilder = ShortcutInfoCompat.Builder(applicationContext, media.conversationIdentifier ?: "").setShortLabel(media.speakableGroupName ?: "Unknown")
-//      .setIsConversation()
-//      .setCategories(setOf(shortcutTarget))
-//      .setIntent(Intent(Intent.ACTION_DEFAULT))
-//      .setLongLived(true)
-//
-//    val personBuilder = Person.Builder()
-//      .setKey(media.conversationIdentifier)
-//      .setName(media.speakableGroupName)
-//
-//    media.imageFilePath?.let {
-//      val bitmap = BitmapFactory.decodeFile(it)
-//      val icon = IconCompat.createWithAdaptiveBitmap(bitmap)
-//      shortcutBuilder.setIcon(icon)
-//      personBuilder.setIcon(icon)
-//    }
-//
-//    val person = personBuilder.build()
-//    shortcutBuilder.setPerson(person)
-//
-//    val shortcut = shortcutBuilder.build()
-//
-//    ShortcutManagerCompat.addDynamicShortcuts(applicationContext, listOf(shortcut))
-//  }
 
   override fun getInitialSharedMedia(result: Messages.Result<Messages.SharedMedia>?) {
     result?.success(initialMedia)
   }
 
   override fun recordSentMessage(media: Messages.SharedMedia) {
-    val packageName = applicationContext.packageName
-    val intent = Intent(applicationContext, Class.forName("$packageName.MainActivity")).apply {
+
+    Log.d("ShareHandler", "activityClassPath = ${media.activityClassPath}")
+    Log.d("ShareHandler", "conversationIdentifier = ${media.conversationIdentifier}")
+    Log.d("ShareHandler", "speakableGroupName = ${media.speakableGroupName}")
+    Log.d("ShareHandler", "serviceName = ${media.serviceName}")
+    Log.d("ShareHandler", "senderIdentifier = ${media.senderIdentifier}")
+    Log.d("ShareHandler", "imageFilePath = ${media.imageFilePath}")
+    Log.d("ShareHandler", "content = ${media.content}")
+    Log.d("ShareHandler", "attachments count = ${media.attachments?.size ?: 0}")
+
+    val packageName = media.activityClassPath ?: run {
+      Log.e("ShareHandler", "❌ activityClassPath is null — cannot continue")
+      return
+    }
+
+    val fullClassPath = "$packageName.MainActivity"
+    Log.d("ShareHandler", "Attempting to load class = $fullClassPath")
+
+    val activityClass = try {
+      Class.forName(fullClassPath)
+    } catch (e: ClassNotFoundException) {
+      Log.e("ShareHandler", "❌ Could not find MainActivity class for $fullClassPath", e)
+      return
+    }
+
+    Log.d("ShareHandler", "✅ Activity class resolved = ${activityClass.name}")
+
+    val intent = Intent(applicationContext, activityClass).apply {
       action = Intent.ACTION_SEND
       putExtra("conversationIdentifier", media.conversationIdentifier)
     }
-    val shortcutTarget = "$packageName.dynamic_share_target"
-    val shortcutBuilder = ShortcutInfoCompat.Builder(applicationContext, media.conversationIdentifier ?: "")
-      .setShortLabel(media.speakableGroupName ?: "Unknown")
+    Log.d("ShareHandler", "Intent created. action = ${intent.action}, extras = ${intent.extras}")
+
+    val currentPackage = applicationContext.packageName
+
+    val shortcutTarget = "$currentPackage.dynamic_share_target"
+    Log.d("ShareHandler", "Runtime package = $currentPackage")
+    Log.d("ShareHandler", "shortcutTarget = $shortcutTarget")
+
+    val shortcutId = media.conversationIdentifier ?: "conversation_${System.currentTimeMillis()}"
+    val shortLabel = media.speakableGroupName ?: "Unknown"
+    Log.d("ShareHandler", "shortcutId = $shortcutId")
+    Log.d("ShareHandler", "shortLabel = $shortLabel")
+
+    val shortcutBuilder = ShortcutInfoCompat.Builder(applicationContext, shortcutId)
+      .setShortLabel(shortLabel)
       .setIsConversation()
       .setCategories(setOf(shortcutTarget))
       .setIntent(intent)
@@ -109,19 +115,30 @@ class ShareHandlerPlugin : FlutterPlugin, Messages.ShareHandlerApi, EventChannel
       .setName(media.speakableGroupName)
 
     media.imageFilePath?.let {
+      Log.d("ShareHandler", "Loading image from file: $it")
       val bitmap = BitmapFactory.decodeFile(it)
-      val icon = IconCompat.createWithAdaptiveBitmap(bitmap)
-      shortcutBuilder.setIcon(icon)
-      personBuilder.setIcon(icon)
-    }
+      if (bitmap != null) {
+        val icon = IconCompat.createWithAdaptiveBitmap(bitmap)
+        shortcutBuilder.setIcon(icon)
+        personBuilder.setIcon(icon)
+        Log.d("ShareHandler", "✅ Icon successfully created from $it")
+      } else {
+        Log.w("ShareHandler", "⚠️ Bitmap decode failed for imageFilePath = $it")
+      }
+    } ?: Log.d("ShareHandler", "No imageFilePath provided — skipping icon setup")
 
     val person = personBuilder.build()
+    Log.d("ShareHandler", "Person built. key=${person.key}, name=${person.name}")
     shortcutBuilder.setPerson(person)
 
     val shortcut = shortcutBuilder.build()
+    Log.d("ShareHandler", "Shortcut built. id=$shortcutId, label=$shortLabel, categories=${shortcut.categories}")
 
-    ShortcutManagerCompat.addDynamicShortcuts(applicationContext, listOf(shortcut))
+    val gotAdded = ShortcutManagerCompat.pushDynamicShortcut(applicationContext, shortcut)
+    Log.d("ShareHandler", "Shortcut add result = $gotAdded")
+
   }
+
 
   override fun resetInitialSharedMedia() {
     initialMedia = null
@@ -180,7 +197,11 @@ class ShareHandlerPlugin : FlutterPlugin, Messages.ShareHandlerApi, EventChannel
 
     val conversationIdentifier = intent.getStringExtra("android.intent.extra.shortcut.ID")
       ?: intent.getStringExtra("conversationIdentifier")
-    val senderId = intent.component?.shortClassName.toString()
+    val senderId = if (conversationIdentifier != null) {
+      "message"
+    } else {
+      intent.component?.shortClassName.toString()
+    }
 
     if (attachments != null || text != null || conversationIdentifier != null) {
       val mediaBuilder = Messages.SharedMedia.Builder()

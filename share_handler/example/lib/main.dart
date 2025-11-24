@@ -68,10 +68,12 @@ class _MyAppState extends State<MyApp> {
                         onPressed: () {
                           ShareHandlerPlatform.instance.recordSentMessage(
                             conversationIdentifier:
-                                "custom-conversation-identifier",
-                            conversationName: "John Doe",
+                                "custom-conversation-identifier2",
+                            conversationName: "wom lee",
                             conversationImageFilePath: path,
-                            serviceName: "custom-service-name",
+                            serviceName: "custom-service-name2",
+                            activityClassPath:
+                                'com.shoutsocial.share_handler_android_example',
                           );
                         },
                         child: const Text("Record message"),
