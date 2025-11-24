@@ -52,46 +52,13 @@ class ShareHandlerPlugin : FlutterPlugin, Messages.ShareHandlerApi, EventChannel
     Messages.ShareHandlerApi.setup(binding.binaryMessenger, null)
   }
 
-//  override fun getInitialSharedMedia(result: Result<SharedMedia>?) {
-//    result?.let { _result -> {
-//      initialMedia?.let { _media -> _result.success(_media) }
-//    } }
-//  }
 
-//  override fun recordSentMessage(media: SharedMedia) {
-//    val packageName = applicationContext.packageName
-//    val shortcutTarget = "$packageName.dynamic_share_target"
-//    val shortcutBuilder = ShortcutInfoCompat.Builder(applicationContext, media.conversationIdentifier ?: "").setShortLabel(media.speakableGroupName ?: "Unknown")
-//      .setIsConversation()
-//      .setCategories(setOf(shortcutTarget))
-//      .setIntent(Intent(Intent.ACTION_DEFAULT))
-//      .setLongLived(true)
-//
-//    val personBuilder = Person.Builder()
-//      .setKey(media.conversationIdentifier)
-//      .setName(media.speakableGroupName)
-//
-//    media.imageFilePath?.let {
-//      val bitmap = BitmapFactory.decodeFile(it)
-//      val icon = IconCompat.createWithAdaptiveBitmap(bitmap)
-//      shortcutBuilder.setIcon(icon)
-//      personBuilder.setIcon(icon)
-//    }
-//
-//    val person = personBuilder.build()
-//    shortcutBuilder.setPerson(person)
-//
-//    val shortcut = shortcutBuilder.build()
-//
-//    ShortcutManagerCompat.addDynamicShortcuts(applicationContext, listOf(shortcut))
-//  }
 
   override fun getInitialSharedMedia(result: Messages.Result<Messages.SharedMedia>?) {
     result?.success(initialMedia)
   }
 
   override fun recordSentMessage(media: Messages.SharedMedia) {
-    Log.d("ShareHandler", "========== recordSentMessage START ==========")
 
     Log.d("ShareHandler", "activityClassPath = ${media.activityClassPath}")
     Log.d("ShareHandler", "conversationIdentifier = ${media.conversationIdentifier}")
@@ -125,9 +92,8 @@ class ShareHandlerPlugin : FlutterPlugin, Messages.ShareHandlerApi, EventChannel
     }
     Log.d("ShareHandler", "Intent created. action = ${intent.action}, extras = ${intent.extras}")
 
-    val currentPackage = applicationContext.packageName
-    val shortcutTarget = "$currentPackage.dynamic_share_target"
-    Log.d("ShareHandler", "Runtime package = $currentPackage")
+    val shortcutTarget = "$packageName.dynamic_share_target"
+    Log.d("ShareHandler", "Runtime package = $packageName")
     Log.d("ShareHandler", "shortcutTarget = $shortcutTarget")
 
     val shortcutId = media.conversationIdentifier ?: "conversation_${System.currentTimeMillis()}"
@@ -166,16 +132,9 @@ class ShareHandlerPlugin : FlutterPlugin, Messages.ShareHandlerApi, EventChannel
     val shortcut = shortcutBuilder.build()
     Log.d("ShareHandler", "Shortcut built. id=$shortcutId, label=$shortLabel, categories=${shortcut.categories}")
 
-    val gotAdded = ShortcutManagerCompat.addDynamicShortcuts(applicationContext, listOf(shortcut))
+    val gotAdded = ShortcutManagerCompat.pushDynamicShortcut(applicationContext, shortcut)
     Log.d("ShareHandler", "Shortcut add result = $gotAdded")
 
-    val existingShortcuts = ShortcutManagerCompat.getDynamicShortcuts(applicationContext)
-    Log.d("ShareHandler", "Current dynamic shortcuts count = ${existingShortcuts.size}")
-    existingShortcuts.forEach {
-      Log.d("ShareHandler", "Existing Shortcut → id=${it.id}, shortLabel=${it.shortLabel}, categories=${it.categories}")
-    }
-
-    Log.d("ShareHandler", "========== recordSentMessage END ==========")
   }
 
 
